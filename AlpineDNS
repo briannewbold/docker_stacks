@@ -1,0 +1,22 @@
+    #This stack creates an Alpine container meant for lightweight DNS.
+    #No DNS app is installed. Not really usable for much besides a terminal.. you can login to SH terminal on this one.
+
+Version: '2.1'
+
+services:
+   alpine:
+     container_name: AlpineDNS
+     image: alpine:latest
+     network_mode: bridge
+     stdin_open: true # docker run -i
+     tty: true        # docker run -t
+     volumes:
+      - /media/usb0/docker:/docker
+
+     restart: on-failure
+
+    #Command and Entrypoint Examples
+     #command: apk --no-cache add curl && curl -O http://downloads.dnsexit.com/ipUpdate-1.71.tar.gz && tar xzvf ipUpdate-1.71.tar.gz && cd dnsexit
+     #command: cp /docker/initscripts/opendnssetup.sh /opendnssetup.sh && chmod +x /opendnssetup.sh
+     #entrypoint: sh /docker/initscripts/opendnssetup.sh
+     

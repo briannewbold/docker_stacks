@@ -1,0 +1,14 @@
+#Just a minimal version of Alpine in a container.
+#Login with SH
+
+version: '2.1'
+
+services:
+   alpine:
+     container_name: AlpineMinimal
+     image: alpine:latest
+     network_mode: bridge
+     stdin_open: true # docker run -i
+     tty: true        # docker run -t
+     volumes:
+      - /media/usb0/docker:/docker

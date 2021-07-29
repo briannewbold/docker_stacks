@@ -1,0 +1,22 @@
+#Installs a Minecraft server
+#Still work in progress as a run command EULA=TRUE needs to be passed. It's otherwise constantly restarting.
+
+version: '2.1'
+
+services:
+  Minecraft:
+    container_name: MinecraftServer
+    image: itzg/minecraft-server
+    environment:
+      EULA:  TRUE   
+    ports:
+      - '25565:25565'   
+    network_mode: bridge  
+    volumes: 
+      - /media/usb0/docker:/docker    
+
+
+    restart: always
+
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t

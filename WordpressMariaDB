@@ -1,0 +1,113 @@
+#This is a full wordpress stack that includes minimal MariaDB rather than mysql. This will work on amd64 based raspi or firewallas
+#And with a local perma-mounted usb drive on the docker host, mapping to it is ez and makes it highly useful for shared setup scripts and other operations you cannot launch from a stack (or get relaunched every start)
+#With shell scripts that check for presence of files such as myscript.sh.installed, which is created and checked for by the myscript.sh script on initial setup.. keeps it to single-run. 
+#I use this method to call scripts from within the /docker/initscripts folder on my USB drive, and use the same drive for localized storage without having to eat up the docker host device's internal storage.
+# Volumes section,  /media/usb0/docker:/docker
+
+#Comments here are just notes for setting up wordpress.
+
+#Remove db_data and wp_data from portainer volumes for full reset
+#You can open command shell into container using www-data user, and remove/add plugins from CLI. Helps when you get borked, such as no SSL cert on container.
+
+#You may want to prevent HTTPS for firewalla local WP admin. 
+#/*define('FORCE_SSL_ADMIN', true);
+#// in some setups HTTP_X_FORWARDED_PROTO might contain 
+#// a comma-separated list e.g. http,https
+#// so check for https existence
+#if (strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false)
+#$_SERVER['HTTPS']='on';
+#*/
+#define('FORCE_SSL_ADMIN', false);
+#define( 'WP_HOME', 'http://firewalla.lan' );
+#define( 'WP_SITEURL', 'http://firewalla.lan' );
+
+#For Multi-site wordpress see: https://multilingualpress.org/docs/how-to-install-wordpress-multisite/
+#But don't use site mode unless you want to set up a dns server internally
+
+#wp-config.php
+#define('WP_ALLOW_MULTISITE', true);
+#define( 'MULTISITE', true );
+#define( 'SUBDOMAIN_INSTALL', true );
+#define( 'DOMAIN_CURRENT_SITE', 'yourdomain.com' );  ###Change to your domain name
+#define( 'PATH_CURRENT_SITE', '/' );
+#define( 'SITE_ID_CURRENT_SITE', 1 );
+#define( 'BLOG_ID_CURRENT_SITE', 1 );
+
+#.htaccess
+## Any changes to the directives between these markers will be overwritten.
+#RewriteEngine On
+#RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+#RewriteBase /
+#RewriteRule ^index\.php$ - [L]
+
+## add a trailing slash to /wp-admin
+#RewriteRule ^wp-admin$ wp-admin/ [R=301,L]
+
+#RewriteCond %{REQUEST_FILENAME} -f [OR]
+#RewriteCond %{REQUEST_FILENAME} -d
+#RewriteRule ^ - [L]
+#RewriteRule ^(wp-(content|admin|includes).*) $1 [L]
+#RewriteRule ^(.*\.php)$ $1 [L]
+#RewriteRule . index.php [L]
+
+## END WordPress
+
+
+version: '2'
+
+services:
+  # Database
+  db:
+    container_name: MariaDB
+    image: mariadb:latest
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    networks:
+      - wpsite
+  # phpmyadmin
+  phpmyadmin:
+    container_name: PHPMyAdmin
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - '8181:80'
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: password 
+    networks:
+      - wpsite
+  # Wordpress
+  wordpress:
+    container_name: Wordpress
+    depends_on:
+      - db
+    image: wordpress:latest
+    ports:
+      - '8000:80'  #Running on port 8000 
+      - '443:443'
+    restart: always
+    volumes: 
+      - wp_data:/var/www/html
+      - /media/usb0/docker:/docker
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    networks:
+      - wpsite
+
+networks:
+  wpsite:
+volumes:
+  db_data:
+  wp_data:

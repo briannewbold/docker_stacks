@@ -1,0 +1,32 @@
+#PiHole installation stack.
+version: '2.1'
+
+# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
+services:
+  pihole:
+    container_name: PiHole
+    image: pihole/pihole:latest
+    ports:
+      - 53:53
+      - 443:443
+      - 80:80    #pihole must run on port 80 for adblock pixel server. This may conflict with wordpress or other setups.
+    environment:
+      - TZ=Los_Angeles/America
+      - DNS1=9.9.9.9
+      - DNS2=149.112.112.112
+      # set a secure password here or the default will be firewalla
+      - WEBPASSWORD=firewalla
+    # Volumes store your data between container upgrades
+    volumes:
+      #- '/data/pi-hole/etc-pihole/:/etc/pihole/'
+      - '/media/usb0/docker:/docker'
+      - '/media/usb0/docker/pihole_data/pi-hole/etc-pihole/:/etc/pihole/'
+      - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
+      - '/etc/localtime:/etc/localtime:ro'
+    restart: unless-stopped
+    network_mode: host
+    dns:
+      #- 127.0.0.1
+      #- 192.168.86.1
+      - 9.9.9.9
+      - 149.112.112.112

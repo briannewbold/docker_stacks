@@ -1,0 +1,41 @@
+#Sample CoreDNS server stack
+#Adapted from: https://coredns.io/2017/07/24/quick-start/
+#And: https://github.com/coredns/deployment/tree/master/docker
+#And: with examples: https://github.com/burkeazbill/docker-coredns
+
+version: "2.1"
+
+services:
+  coredns:
+    container_name: CoreDNS
+    image: coredns/coredns
+    #command: >
+    #  /bin/sh -c "touch /etc/coredns/Corefile"
+      
+      #/bin/sh -c "[ ! -f '/etc/coredns/Corefile' ] && echo '/etc/coredns/Corefile file missing' || echo '/etc/coredns/Corefile file found ...'"
+    stdin_open: true # docker run -i
+       
+    ports:
+      - "9953:53/udp"
+      - "9953:53/tcp"
+      #- "9153:9153/tcp"
+    volumes:
+      - coredns:/data:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: true
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - "node.labels.iface != extern"
+#      restart_policy:
+#        condition: on-failure
+    restart: on-failure
+
+volumes:
+  coredns:
+    external: true
+    

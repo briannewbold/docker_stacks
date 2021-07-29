@@ -1,0 +1,23 @@
+#This stack creates a minimal Alpine container
+#Then runs setup script in the /docker folder on external USB drive.  
+#/media/usb0/docker must be permanently mounted external USB.
+
+version: '2.1'
+
+services:
+   alpine:
+     container_name: AlpinePyDNSExit
+     image: alpine:latest
+     network_mode: bridge
+     stdin_open: true # docker run -i
+     tty: true        # docker run -t
+     volumes:
+      - /media/usb0/docker:/docker
+
+     entrypoint: sh /docker/initscripts/pydnsexit_cron.sh
+     
+     restart: on-failure
+     
+     
+     #apk --no-cache add git && apk --no-cache add python3 && apk --no-cache add openrc && git clone https://github.com/briannewbold/PyDnsExit pydnsexit && cd pydnsexit 
+     #&& chmod 755 credentials.py && chmod 755 domains.py && chmod 755 latestIP.py && chmod 755 pydnsexit_update.py

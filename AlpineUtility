@@ -1,0 +1,14 @@
+#Utility Alpine install in a container
+version: '2.1'
+
+services:
+   alpine:
+     container_name: AlpineUtility
+     image: alpine:latest
+     network_mode: bridge
+     stdin_open: true # docker run -i
+     tty: true        # docker run -t
+     volumes:
+      - /media/usb0/docker:/docker
+     ports:
+      - 2222:22
