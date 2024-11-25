@@ -4,7 +4,7 @@ source <(curl -s https://raw.githubusercontent.com/tteck/Proxmox/main/misc/build
 # Author: tteck (tteckster)
 # License: MIT
 # https://github.com/tteck/Proxmox/raw/main/LICENSE
-# Increased to 8Gb drive by B.Newbold 112524
+# Increased to 4cpu 12Gb 128Gb drive by B.Newbold 112524
 
 function header_info {
 clear
@@ -21,8 +21,8 @@ header_info
 echo -e "Loading..."
 APP="Docker"
 var_disk="128"
-var_cpu="2"
-var_ram="2048"
+var_cpu="4"
+var_ram="12288"
 var_os="debian"
 var_version="12"
 variables
